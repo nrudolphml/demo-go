@@ -57,6 +57,33 @@ func main() {
 		},
 	})
 
+	shell.AddCmd(&ishell.Cmd{
+		Name: "registerUser",
+		Help: "Registers a user",
+		Func: func(c *ishell.Context) {
+			defer c.ShowPrompt(true)
+
+			c.Print("Write your username: ")
+			username := c.ReadLine()
+			c.Print("Write your email: ")
+			email := c.ReadLine()
+			c.Print("Write your nickname: ")
+			nickname := c.ReadLine()
+			c.Print("Write your password: ")
+			pass := c.ReadLine()
+
+			if err := service.AddUser(username, email, nickname, pass); err != nil {
+				c.Println("An error has occurred: ", err, "\n")
+				return
+			}
+
+			c.Print("User added\n")
+
+			return
+
+		},
+	})
+
 	shell.Run()
 
 }
