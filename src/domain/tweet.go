@@ -8,7 +8,7 @@ type Tweet struct {
 }
 
 func NewTweet(user string, text string) *Tweet {
-	time := time.Now()
-	v := Tweet{user, text, &time}
+	t := time.Now()
+	v := Tweet{user, text, &t}
 	return &v
 }
