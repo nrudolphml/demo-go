@@ -8,7 +8,7 @@ import (
 var tweet *domain.Tweet
 
 func PublishTweet(tweetToPublish *domain.Tweet) error {
-	if tweetToPublish.User == "" {
+	if tweetToPublish.User == nil {
 		return errors.New("user is required")
 	}
 	if tweetToPublish.Text == "" {

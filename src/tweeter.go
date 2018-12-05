@@ -21,11 +21,18 @@ func main() {
 
 			c.Print("Write your username: ")
 
-			user := c.ReadLine()
+			username := c.ReadLine()
 
 			c.Print("Write your tweet: ")
 
 			text := c.ReadLine()
+
+			user, err := service.GetUser(username)
+
+			if err != nil {
+				c.Println("An error has occurred: ", err, "\n")
+				return
+			}
 
 			tweet := domain.NewTweet(user, text)
 
@@ -72,7 +79,7 @@ func main() {
 			c.Print("Write your password: ")
 			pass := c.ReadLine()
 
-			if err := service.AddUser(username, email, nickname, pass); err != nil {
+			if _, err := service.AddUser(username, email, nickname, pass); err != nil {
 				c.Println("An error has occurred: ", err, "\n")
 				return
 			}

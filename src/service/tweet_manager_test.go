@@ -10,18 +10,18 @@ func TestPublishedTweetIsSaved(t *testing.T) {
 
 	// Initialization
 	var tweet *domain.Tweet
-	user := "grupoesfera"
+	user, _ := service.AddUser("pepe", "pepe@pepe.com", "pepe", "pepe")
 	text := "mi super tweet"
 	tweet = domain.NewTweet(user, text)
 
 	// Operation
-	service.PublishTweet(tweet)
+	_ = service.PublishTweet(tweet)
 
 	// Validation
 	publishedTweet := service.GetTweet()
 
-	if publishedTweet.User != user && publishedTweet.Text != text {
-		t.Errorf("Expected tweet is %s: %s \nbout is %s: %s", user, text, publishedTweet.User, publishedTweet.Text)
+	if publishedTweet.User.Username != user.Username && publishedTweet.Text != text {
+		t.Errorf("Expected tweet is %s: %s \nbout is %s: %s", user.Username, text, publishedTweet.User.Username, publishedTweet.Text)
 	}
 	if publishedTweet.Date == nil {
 		t.Error("Expeted date can't be nil")
@@ -32,7 +32,7 @@ func TestWithoutUserIsNotPublished(t *testing.T) {
 	// Initialization
 	var tweet *domain.Tweet
 
-	var user string
+	var user *domain.User
 	text := "super tweet"
 
 	tweet = domain.NewTweet(user, text)
@@ -52,7 +52,7 @@ func TestTweetWithoutTextIsNotPublished(t *testing.T) {
 	// Initialization
 	var tweet *domain.Tweet
 
-	user := "nico"
+	user, _ := service.AddUser("pepe", "pepe@pepe.com", "pepe", "pepe")
 	var text string
 
 	tweet = domain.NewTweet(user, text)
@@ -72,7 +72,7 @@ func TestTweetWhichExceeding140CharactersIsNotPublished(t *testing.T) {
 	// Initialization
 	var tweet *domain.Tweet
 
-	user := "nico"
+	user, _ := service.AddUser("pepe", "pepe@pepe.com", "pepe", "pepe")
 	text := "super tweetsuper tweetsuper tweetsuper tweetsuper tweetsuper tweetsuper tweetsuper tweetsuper tweetsuper tweetsuper tweetsuper tweetsuper tweettweetsuper tweet"
 
 	tweet = domain.NewTweet(user, text)

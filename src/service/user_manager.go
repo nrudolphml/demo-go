@@ -7,24 +7,25 @@ import (
 
 var users []*domain.User
 
-func AddUser(username string, email string, nickname string, password string) error {
+func AddUser(username string, email string, nickname string, password string) (*domain.User, error) {
 	if username == "" {
-		return errors.New("username is empty")
+		return nil, errors.New("username is empty")
 	}
 	if email == "" {
-		return errors.New("email is empty")
+		return nil, errors.New("email is empty")
 	}
 	if nickname == "" {
-		return errors.New("nickname is empty")
+		return nil, errors.New("nickname is empty")
 	}
 	if password == "" {
-		return errors.New("password is empty")
+		return nil, errors.New("password is empty")
 	}
 	if checkIfUserExists(username, email) {
-		return errors.New("el usuario ya existe")
+		return nil, errors.New("el usuario ya existe")
 	}
-	users = append(users, domain.NewUser(username, email, password, nickname))
-	return nil
+	user := domain.NewUser(username, email, password, nickname)
+	users = append(users, user)
+	return user, nil
 }
 
 func checkIfUserExists(username string, email string) bool {
@@ -34,4 +35,13 @@ func checkIfUserExists(username string, email string) bool {
 		}
 	}
 	return false
+}
+
+func GetUser(username string) (*domain.User, error) {
+	for _, v := range users {
+		if username == v.Username {
+			return v, nil
+		}
+	}
+	return nil, errors.New("no user was found")
 }
