@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/abiosoft/ishell"
+	"github.com/nrudolph/twitter/src/domain"
 	"github.com/nrudolph/twitter/src/service"
 )
 
@@ -18,9 +19,15 @@ func main() {
 
 			defer c.ShowPrompt(true)
 
+			c.Print("Write your username: ")
+
+			user := c.ReadLine()
+
 			c.Print("Write your tweet: ")
 
-			tweet := c.ReadLine()
+			text := c.ReadLine()
+
+			tweet := domain.NewTweet(user, text)
 
 			service.PublishTweet(tweet)
 
@@ -39,7 +46,9 @@ func main() {
 
 			tweet := service.GetTweet()
 
-			c.Println(tweet)
+			c.Printf("%s: %s, %d-%02d-%02d %02d:%02d\n", tweet.User, tweet.Text,
+				(*tweet.Date).Year(), (*tweet.Date).Month(), (*tweet.Date).Day(), (*tweet.Date).Hour(),
+				(*tweet.Date).Minute())
 
 			return
 		},
