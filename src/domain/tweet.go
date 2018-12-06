@@ -10,4 +10,7 @@ type Tweet interface {
 	GetText() string
 	GetDate() *time.Time
 	GetId() int
+	SetId(id int)
+	String() string
+	FullString() string
 }

@@ -29,11 +29,15 @@ func (tweet *TextTweet) GetDate() *time.Time {
 	return tweet.Date
 }
 
+func (tweet *TextTweet) SetId(id int) {
+	tweet.Id = id
+}
+
 func (tweet *TextTweet) String() string {
 	return "@" + tweet.User.Nickname + ": " + tweet.Text
 }
 
-func (tweet *TextTweet) PrintableFullTweet() string {
+func (tweet *TextTweet) FullString() string {
 	return fmt.Sprintf("@%s: %s, %d-%02d-%02d %02d:%02d, (id: %d)", tweet.User.Nickname, tweet.Text, tweet.Date.Year(),
 		tweet.Date.Month(), tweet.Date.Day(), tweet.Date.Hour(), tweet.Date.Minute(), tweet.Id)
 }

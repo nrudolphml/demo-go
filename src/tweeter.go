@@ -16,8 +16,8 @@ func main() {
 	userManager := service.NewUserManager()
 
 	shell.AddCmd(&ishell.Cmd{
-		Name: "publishTweet",
-		Help: "Publishes a tweet",
+		Name: "publishTextTweet",
+		Help: "Publishes a text tweet",
 		Func: func(c *ishell.Context) {
 
 			defer c.ShowPrompt(true)
@@ -42,7 +42,7 @@ func main() {
 				return
 			}
 
-			tweet := domain.NewTweet(user, text)
+			tweet := domain.NewTextTweet(user, text)
 
 			if _, err := tweetManager.PublishTweet(tweet); err != nil {
 				c.Println("An error has occurred: ", err, "\n")
@@ -111,7 +111,7 @@ func main() {
 			tweets := tweetManager.GetTweets()
 
 			for _, tweet := range tweets {
-				c.Printf("%s\n", tweet.PrintableFullTweet())
+				c.Printf("%s\n", tweet.FullString())
 			}
 
 			return
@@ -167,7 +167,7 @@ func main() {
 				return
 			}
 
-			c.Printf("%s\n", tweet.PrintableFullTweet())
+			c.Printf("%s\n", tweet.FullString())
 
 			c.Print("User added\n")
 
