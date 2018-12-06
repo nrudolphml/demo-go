@@ -124,6 +124,33 @@ func main() {
 	})
 
 	shell.AddCmd(&ishell.Cmd{
+		Name: "countUserTweets",
+		Help: "Counts tweets publish by user",
+		Func: func(c *ishell.Context) {
+			defer c.ShowPrompt(true)
+
+			c.Print("Write user's username/email/nickname: ")
+			identifier := c.ReadLine()
+
+			owner, err := service.GetUser(identifier)
+
+			if err != nil {
+				c.Println("An error has occurred: ", err, "\n")
+				return
+			}
+
+			count := service.CountTweetsByUser(owner)
+
+			c.Printf("Amount of tweets by %s: %d\nhel", owner.Nickname, count)
+
+			c.Print("User loggedIn\n")
+
+			return
+
+		},
+	})
+
+	shell.AddCmd(&ishell.Cmd{
 		Name: "login",
 		Help: "Log in a user",
 		Func: func(c *ishell.Context) {

@@ -41,3 +41,13 @@ func GetTweetById(id int) (*domain.Tweet, error) {
 	}
 	return nil, errors.New("no tweet found with id")
 }
+
+func CountTweetsByUser(owner *user.User) int {
+	count := 0
+	for _, v := range tweets {
+		if v.User.Username == owner.Username {
+			count++
+		}
+	}
+	return count
+}

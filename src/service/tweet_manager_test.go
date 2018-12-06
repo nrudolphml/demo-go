@@ -179,3 +179,33 @@ func TestReturnsErrorWhenRetrieveTweetByIdInvalid(t *testing.T) {
 		return
 	}
 }
+
+func TestCanCountTheTweetsSentByAnUser(t *testing.T) {
+	// init
+	service.InitializeService()
+	var tweet, secondTweet, thirdTweet *domain.Tweet
+
+	user1, _ := service.AddUser("pepe", "pepe@pepe.com", "Pepe", "pepe")
+	user2, _ := service.AddUser("Juan", "juan@pepe.com", "Juan", "pepe")
+
+	text1 := "Primer tweet"
+	text2 := "Segundo tweet"
+	text3 := "Tercer tweet"
+
+	tweet = domain.NewTweet(user1, text1)
+	secondTweet = domain.NewTweet(user1, text2)
+	thirdTweet = domain.NewTweet(user2, text3)
+
+	service.PublishTweet(tweet)
+	service.PublishTweet(secondTweet)
+	service.PublishTweet(thirdTweet)
+
+	//Operation
+	count := service.CountTweetsByUser(user1)
+
+	// Validation
+
+	if count != 2 {
+		t.Errorf("expected 2 but was found %d", count)
+	}
+}
