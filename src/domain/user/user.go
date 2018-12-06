@@ -13,6 +13,6 @@ func CheckPassword(user *User, password string) bool {
 	return user.password == password
 }
 
-func Equals(user1 *User, user2 *User) bool {
-	return user1.Email == user2.Email && user1.Username == user2.Username
+func IsUser(user *User, identification string) bool {
+	return user.Username == identification || user.Email == identification || user.Nickname == identification
 }

@@ -123,6 +123,29 @@ func main() {
 		},
 	})
 
+	shell.AddCmd(&ishell.Cmd{
+		Name: "login",
+		Help: "Log in a user",
+		Func: func(c *ishell.Context) {
+			defer c.ShowPrompt(true)
+
+			c.Print("Write your username/email/nickname: ")
+			identifier := c.ReadLine()
+			c.Print("Write your password: ")
+			pass := c.ReadLine()
+
+			if _, err := service.LoginUser(identifier, pass); err != nil {
+				c.Println("An error has occurred: ", err, "\n")
+				return
+			}
+
+			c.Print("User loggedIn\n")
+
+			return
+
+		},
+	})
+
 	shell.Run()
 
 }

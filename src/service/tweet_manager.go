@@ -30,6 +30,7 @@ func GetTweets() []*domain.Tweet {
 func InitializeService() {
 	tweets = make([]*domain.Tweet, 0)
 	users = make([]*user.User, 0)
+	loggedUsers = make([]*user.User, 0)
 }
 
 func GetTweetById(id int) (*domain.Tweet, error) {
