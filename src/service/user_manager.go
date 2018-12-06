@@ -2,12 +2,12 @@ package service
 
 import (
 	"errors"
-	"github.com/nrudolph/twitter/src/domain"
+	"github.com/nrudolph/twitter/src/domain/user"
 )
 
-var users []*domain.User
+var users []*user.User
 
-func AddUser(username string, email string, nickname string, password string) (*domain.User, error) {
+func AddUser(username string, email string, nickname string, password string) (*user.User, error) {
 	if username == "" {
 		return nil, errors.New("username is empty")
 	}
@@ -23,9 +23,9 @@ func AddUser(username string, email string, nickname string, password string) (*
 	if checkIfUserExists(username, email) {
 		return nil, errors.New("el usuario ya existe")
 	}
-	user := domain.NewUser(username, email, password, nickname)
-	users = append(users, user)
-	return user, nil
+	newUser := user.NewUser(username, email, password, nickname)
+	users = append(users, newUser)
+	return newUser, nil
 }
 
 func checkIfUserExists(username string, email string) bool {
@@ -37,7 +37,7 @@ func checkIfUserExists(username string, email string) bool {
 	return false
 }
 
-func GetUser(username string) (*domain.User, error) {
+func GetUser(username string) (*user.User, error) {
 	for _, v := range users {
 		if username == v.Username {
 			return v, nil

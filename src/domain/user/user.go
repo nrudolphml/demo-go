@@ -1,4 +1,4 @@
-package domain
+package user
 
 type User struct {
 	Username, Email, password, Nickname string

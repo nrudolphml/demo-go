@@ -2,6 +2,7 @@ package service_test
 
 import (
 	"github.com/nrudolph/twitter/src/domain"
+	"github.com/nrudolph/twitter/src/domain/user"
 	"github.com/nrudolph/twitter/src/service"
 	"testing"
 )
@@ -12,9 +13,9 @@ func TestPublishedTweetIsSaved(t *testing.T) {
 	service.InitializeService()
 
 	var tweet *domain.Tweet
-	user, _ := service.AddUser("pepe", "pepe@pepe.com", "pepe", "pepe")
+	u, _ := service.AddUser("pepe", "pepe@pepe.com", "pepe", "pepe")
 	text := "mi super tweet"
-	tweet = domain.NewTweet(user, text)
+	tweet = domain.NewTweet(u, text)
 
 	// Operation
 	_, _ = service.PublishTweet(tweet)
@@ -22,8 +23,8 @@ func TestPublishedTweetIsSaved(t *testing.T) {
 	// Validation
 	publishedTweet := service.GetTweets()[0]
 
-	if publishedTweet.User.Username != user.Username && publishedTweet.Text != text {
-		t.Errorf("Expected tweet is %s: %s \nbout is %s: %s", user.Username, text, publishedTweet.User.Username, publishedTweet.Text)
+	if publishedTweet.User.Username != u.Username && publishedTweet.Text != text {
+		t.Errorf("Expected tweet is %s: %s \nbout is %s: %s", u.Username, text, publishedTweet.User.Username, publishedTweet.Text)
 	}
 	if publishedTweet.Date == nil {
 		t.Error("Expeted date can't be nil")
@@ -35,10 +36,10 @@ func TestWithoutUserIsNotPublished(t *testing.T) {
 	service.InitializeService()
 	var tweet *domain.Tweet
 
-	var user *domain.User
+	var u *user.User
 	text := "super tweet"
 
-	tweet = domain.NewTweet(user, text)
+	tweet = domain.NewTweet(u, text)
 
 	// Operation
 
@@ -55,10 +56,10 @@ func TestTweetWithoutTextIsNotPublished(t *testing.T) {
 	service.InitializeService()
 	var tweet *domain.Tweet
 
-	user, _ := service.AddUser("pepe", "pepe@pepe.com", "pepe", "pepe")
+	u, _ := service.AddUser("pepe", "pepe@pepe.com", "pepe", "pepe")
 	var text string
 
-	tweet = domain.NewTweet(user, text)
+	tweet = domain.NewTweet(u, text)
 
 	// Operation
 
@@ -76,10 +77,10 @@ func TestTweetWhichExceeding140CharactersIsNotPublished(t *testing.T) {
 	service.InitializeService()
 	var tweet *domain.Tweet
 
-	user, _ := service.AddUser("pepe", "pepe@pepe.com", "pepe", "pepe")
+	u, _ := service.AddUser("pepe", "pepe@pepe.com", "pepe", "pepe")
 	text := "super tweetsuper tweetsuper tweetsuper tweetsuper tweetsuper tweetsuper tweetsuper tweetsuper tweetsuper tweetsuper tweetsuper tweetsuper tweettweetsuper tweet"
 
-	tweet = domain.NewTweet(user, text)
+	tweet = domain.NewTweet(u, text)
 
 	// Operation
 
@@ -156,4 +157,25 @@ func TestCanRetrieveTweetById(t *testing.T) {
 	// Validation
 	publishedTweet, _ := service.GetTweetById(id)
 	isValidTweet(t, publishedTweet, tweetUser.Username, text)
+}
+
+func TestReturnsErrorWhenRetrieveTweetByIdInvalid(t *testing.T) {
+	// Init
+	service.InitializeService()
+	var tweet *domain.Tweet
+
+	tweetUser, _ := service.AddUser("pepe", "pepe@pepe.com", "Pepe", "cont")
+	text := "Super tweet"
+
+	tweet = domain.NewTweet(tweetUser, text)
+
+	// Operation
+	_, _ = service.PublishTweet(tweet)
+
+	// Validation
+	_, err := service.GetTweetById(2)
+	if err == nil {
+		t.Error("Expected an error but was not found")
+		return
+	}
 }
