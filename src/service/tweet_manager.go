@@ -63,25 +63,30 @@ func (tweetManager *TweetManager) GetTweetsByUser(owner *user.User) []*domain.Tw
 	return tweets
 }
 
-func (tweetManager *TweetManager) DeleteTweet(id int) (bool, error) {
+func (tweetManager *TweetManager) DeleteTweet(owner *user.User, id int) (bool, error) {
 	var index = -1
 	var tweet *domain.Tweet
-	for i, v := range tweetManager.tweets {
+
+	tweetList := tweetManager.tweetsByOwner[owner]
+	for i, v := range tweetList {
 		if v.Id == id {
 			index = i
 			tweet = v
 			break
 		}
 	}
+
 	if index == -1 {
 		return false, errors.New("the tweet doesn't exist")
 	}
-	tweetManager.tweets = append(tweetManager.tweets[:index], tweetManager.tweets[index+1:]...)
 
-	tweetList := tweetManager.tweetsByOwner[tweet.User]
+	if tweet.User != owner {
+		return false, errors.New("the tweet doesn't belong to the user")
+	}
+	tweetManager.tweetsByOwner[owner] = append(tweetList[:index], tweetList[index+1:]...)
 
 	index = -1
-	for i, v := range tweetList {
+	for i, v := range tweetManager.tweets {
 		if v.Id == id {
 			index = i
 			break
@@ -91,7 +96,7 @@ func (tweetManager *TweetManager) DeleteTweet(id int) (bool, error) {
 	if index == -1 {
 		return false, errors.New("the tweet doesn't exist")
 	}
-	tweetManager.tweetsByOwner[tweet.User] = append(tweetList[:index], tweetList[index+1:]...)
+	tweetManager.tweets = append(tweetManager.tweets[:index], tweetManager.tweets[index+1:]...)
 	return true, nil
 
 }

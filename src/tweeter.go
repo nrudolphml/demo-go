@@ -56,6 +56,52 @@ func main() {
 	})
 
 	shell.AddCmd(&ishell.Cmd{
+		Name: "deleteTweet",
+		Help: "Deletes a tweet",
+		Func: func(c *ishell.Context) {
+
+			defer c.ShowPrompt(true)
+
+			c.Print("Write your username/email/nickname: ")
+
+			identifier := c.ReadLine()
+
+			c.Print("Write your tweets id: ")
+
+			id := c.ReadLine()
+
+			user, err := userManager.GetUser(identifier)
+
+			if err != nil {
+				c.Println("An error has occurred: ", err, "\n")
+				return
+			}
+
+			if !userManager.IsUserLoggedIn(user) {
+				c.Println("The user must login to publish tweets\n")
+				return
+			}
+
+			numId, err := strconv.Atoi(id)
+
+			if err != nil {
+				c.Println("The id is not valid\n")
+				return
+			}
+			_, err = tweetManager.DeleteTweet(user, numId)
+
+			if err != nil {
+				c.Println("An error has occurred: ", err, "\n")
+				return
+			}
+
+			c.Print("Tweet deleted\n")
+
+			return
+		},
+	})
+
+	shell.AddCmd(&ishell.Cmd{
 		Name: "showTweets",
 		Help: "Shows all tweets",
 		Func: func(c *ishell.Context) {
@@ -65,7 +111,7 @@ func main() {
 			tweets := tweetManager.GetTweets()
 
 			for _, tweet := range tweets {
-				printTweet(c, tweet)
+				c.Printf("%s\n", tweet.PrintableFullTweet())
 			}
 
 			return
@@ -121,7 +167,7 @@ func main() {
 				return
 			}
 
-			printTweet(c, tweet)
+			c.Printf("%s\n", tweet.PrintableFullTweet())
 
 			c.Print("User added\n")
 
@@ -210,10 +256,4 @@ func main() {
 
 	shell.Run()
 
-}
-
-func printTweet(c *ishell.Context, tweet *domain.Tweet) {
-	c.Printf("%s: %s, %d-%02d-%02d %02d:%02d\n", tweet.User.Nickname, tweet.Text,
-		(*tweet.Date).Year(), (*tweet.Date).Month(), (*tweet.Date).Day(), (*tweet.Date).Hour(),
-		(*tweet.Date).Minute())
 }

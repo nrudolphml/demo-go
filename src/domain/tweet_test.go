@@ -6,13 +6,13 @@ import (
 	"testing"
 )
 
-func TestCanGetAPrintableTweet(t *testing.T) {
+func TestCanGetAStringTweet(t *testing.T) {
 	// init
 
 	u := user.NewUser("pepe", "pepe@pepe.com", "ppp", "Pepe")
 	tweet := domain.NewTweet(u, "this is my tweet")
 
-	text := tweet.PrintableTweet()
+	text := tweet.String()
 
 	expectedText := "@Pepe: this is my tweet"
 	if text != expectedText {
