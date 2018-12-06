@@ -12,6 +12,10 @@ type Tweet struct {
 	Id   int
 }
 
+func (tweet *Tweet) PrintableTweet() string {
+	return "@" + tweet.User.Nickname + ": " + tweet.Text
+}
+
 func NewTweet(user *user.User, text string) *Tweet {
 	t := time.Now()
 	v := Tweet{User: user, Text: text, Date: &t}
