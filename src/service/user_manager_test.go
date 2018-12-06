@@ -101,3 +101,15 @@ func TestLoginUser(t *testing.T) {
 		t.Error("user could not be logged in")
 	}
 }
+
+func TestLogout(t *testing.T) {
+	service.InitializeService()
+	user, _ := service.AddUser("pepe", "pepe@pepe.com", "pepe", "ppp")
+	_, _ = service.LoginUser(user.Username, "ppp")
+
+	service.LogoutUser(user)
+
+	if service.IsUserLoggedIn(user) {
+		t.Error("user could not be logged out")
+	}
+}
