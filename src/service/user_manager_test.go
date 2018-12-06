@@ -95,9 +95,9 @@ func TestGetUserFromUsernameReturnsErrorForInexistingUsername(t *testing.T) {
 func TestLoginUser(t *testing.T) {
 	service.InitializeService()
 	user, _ := service.AddUser("pepe", "pepe@pepe.com", "pepe", "ppp")
-	result, _ := service.LoginUser(user.Username, "ppp")
+	_, _ = service.LoginUser(user.Username, "ppp")
 
-	if !result {
+	if !service.IsUserLoggedIn(user) {
 		t.Error("user could not be logged in")
 	}
 }

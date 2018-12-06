@@ -65,8 +65,12 @@ func LoginUser(identification string, password string) (bool, error) {
 func isUserLogged(identification string) bool {
 	for _, v := range loggedUsers {
 		if user.IsUser(v, identification) {
-			return false
+			return true
 		}
 	}
 	return false
+}
+
+func IsUserLoggedIn(userToCheck *user.User) bool {
+	return isUserLogged(userToCheck.Username)
 }

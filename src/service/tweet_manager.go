@@ -7,6 +7,14 @@ import (
 )
 
 var tweets []*domain.Tweet
+var tweetsByOwner map[*user.User][]*domain.Tweet
+
+func InitializeService() {
+	tweets = make([]*domain.Tweet, 0)
+	users = make([]*user.User, 0)
+	loggedUsers = make([]*user.User, 0)
+	tweetsByOwner = make(map[*user.User][]*domain.Tweet)
+}
 
 func PublishTweet(tweetToPublish *domain.Tweet) (int, error) {
 	if tweetToPublish.User == nil {
@@ -20,17 +28,19 @@ func PublishTweet(tweetToPublish *domain.Tweet) (int, error) {
 	}
 	tweetToPublish.Id = len(tweets)
 	tweets = append(tweets, tweetToPublish)
+
+	listOfTweets, exists := tweetsByOwner[tweetToPublish.User]
+	if exists {
+		tweetsByOwner[tweetToPublish.User] = append(listOfTweets, tweetToPublish)
+	} else {
+		tweetsByOwner[tweetToPublish.User] = []*domain.Tweet{tweetToPublish}
+	}
+
 	return tweetToPublish.Id, nil
 }
 
 func GetTweets() []*domain.Tweet {
 	return tweets
-}
-
-func InitializeService() {
-	tweets = make([]*domain.Tweet, 0)
-	users = make([]*user.User, 0)
-	loggedUsers = make([]*user.User, 0)
 }
 
 func GetTweetById(id int) (*domain.Tweet, error) {
@@ -43,11 +53,17 @@ func GetTweetById(id int) (*domain.Tweet, error) {
 }
 
 func CountTweetsByUser(owner *user.User) int {
-	count := 0
-	for _, v := range tweets {
-		if v.User.Username == owner.Username {
-			count++
-		}
+	tweets, exists := tweetsByOwner[owner]
+	if !exists {
+		return 0
 	}
-	return count
+	return len(tweets)
+}
+
+func GetTweetsByUser(owner *user.User) []*domain.Tweet {
+	tweets, exists := tweetsByOwner[owner]
+	if !exists {
+		return nil
+	}
+	return tweets
 }

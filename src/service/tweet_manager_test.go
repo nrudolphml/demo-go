@@ -209,3 +209,41 @@ func TestCanCountTheTweetsSentByAnUser(t *testing.T) {
 		t.Errorf("expected 2 but was found %d", count)
 	}
 }
+
+func TestCanRetrieveTheTweetsSentByAnUser(t *testing.T) {
+	// Initialization
+	service.InitializeService()
+	var tweet, secondTweet, thirdTweet *domain.Tweet
+	user1, _ := service.AddUser("pepe", "pepe@pepe.com", "Pepe", "pepe")
+	anotherUser, _ := service.AddUser("nick", "nick@pepe.com", "Nick", "pepe")
+	text := "This is my first tweet"
+	secondText := "This is my second tweet"
+	tweet = domain.NewTweet(user1, text)
+	secondTweet = domain.NewTweet(user1, secondText)
+	thirdTweet = domain.NewTweet(anotherUser, text)
+	// publish the 3 tweets
+
+	service.LoginUser("pepe", "pepe")
+	service.LoginUser("nick", "pepe")
+
+	service.PublishTweet(tweet)
+	service.PublishTweet(secondTweet)
+	service.PublishTweet(thirdTweet)
+
+	// Operation
+	tweets := service.GetTweetsByUser(user1)
+
+	// Validation
+	if len(tweets) != 2 {
+		t.Errorf("expected 2 but was found %d", len(tweets))
+	}
+	firstPublishedTweet := tweets[0]
+	secondPublishedTweet := tweets[1]
+
+	if !isValidTweet(t, firstPublishedTweet, user1.Username, text) {
+		return
+	}
+	if !isValidTweet(t, secondPublishedTweet, user1.Username, secondText) {
+		return
+	}
+}

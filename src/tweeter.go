@@ -35,6 +35,11 @@ func main() {
 				return
 			}
 
+			if !service.IsUserLoggedIn(user) {
+				c.Println("The user must login to publish tweets\n")
+				return
+			}
+
 			tweet := domain.NewTweet(user, text)
 
 			if _, err := service.PublishTweet(tweet); err != nil {
