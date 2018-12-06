@@ -6,11 +6,11 @@ import (
 	"testing"
 )
 
-func TestCanGetAStringTweet(t *testing.T) {
+func TestTextTweetCanGetAStringTweet(t *testing.T) {
 	// init
 
 	u := user.NewUser("pepe", "pepe@pepe.com", "ppp", "Pepe")
-	tweet := domain.NewTweet(u, "this is my tweet")
+	tweet := domain.NewTextTweet(u, "this is my tweet")
 
 	text := tweet.String()
 
