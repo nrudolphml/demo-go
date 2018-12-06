@@ -5,10 +5,12 @@ import (
 	"github.com/nrudolph/twitter/src/domain/user"
 )
 
-var users []*user.User
-var loggedUsers []*user.User
+type UserManager struct {
+	users       []*user.User
+	loggedUsers []*user.User
+}
 
-func AddUser(username string, email string, nickname string, password string) (*user.User, error) {
+func (userManager *UserManager) AddUser(username string, email string, nickname string, password string) (*user.User, error) {
 	if username == "" {
 		return nil, errors.New("username is empty")
 	}
@@ -21,16 +23,16 @@ func AddUser(username string, email string, nickname string, password string) (*
 	if password == "" {
 		return nil, errors.New("password is empty")
 	}
-	if checkIfUserExists(username, email, nickname) {
+	if userManager.checkIfUserExists(username, email, nickname) {
 		return nil, errors.New("el usuario ya existe")
 	}
 	newUser := user.NewUser(username, email, password, nickname)
-	users = append(users, newUser)
+	userManager.users = append(userManager.users, newUser)
 	return newUser, nil
 }
 
-func checkIfUserExists(username string, email string, nickname string) bool {
-	for _, v := range users {
+func (userManager *UserManager) checkIfUserExists(username string, email string, nickname string) bool {
+	for _, v := range userManager.users {
 		if username == v.Username || email == v.Email || nickname == v.Nickname {
 			return true
 		}
@@ -38,8 +40,8 @@ func checkIfUserExists(username string, email string, nickname string) bool {
 	return false
 }
 
-func GetUser(identification string) (*user.User, error) {
-	for _, v := range users {
+func (userManager *UserManager) GetUser(identification string) (*user.User, error) {
+	for _, v := range userManager.users {
 		if user.IsUser(v, identification) {
 			return v, nil
 		}
@@ -47,23 +49,23 @@ func GetUser(identification string) (*user.User, error) {
 	return nil, errors.New("no user was found")
 }
 
-func LoginUser(identification string, password string) (bool, error) {
-	currentUser, e := GetUser(identification)
+func (userManager *UserManager) LoginUser(identification string, password string) (bool, error) {
+	currentUser, e := userManager.GetUser(identification)
 	if e != nil {
 		return false, e
 	}
 	if !user.CheckPassword(currentUser, password) {
 		return false, errors.New("invalid credentials")
 	}
-	if isUserLogged(identification) {
+	if userManager.isUserLogged(identification) {
 		return false, errors.New("user is already logged in")
 	}
-	loggedUsers = append(loggedUsers, currentUser)
+	userManager.loggedUsers = append(userManager.loggedUsers, currentUser)
 	return true, nil
 }
 
-func isUserLogged(identification string) bool {
-	for _, v := range loggedUsers {
+func (userManager *UserManager) isUserLogged(identification string) bool {
+	for _, v := range userManager.loggedUsers {
 		if user.IsUser(v, identification) {
 			return true
 		}
@@ -71,13 +73,13 @@ func isUserLogged(identification string) bool {
 	return false
 }
 
-func IsUserLoggedIn(userToCheck *user.User) bool {
-	return isUserLogged(userToCheck.Username)
+func (userManager *UserManager) IsUserLoggedIn(userToCheck *user.User) bool {
+	return userManager.isUserLogged(userToCheck.Username)
 }
 
-func LogoutUser(userToLogout *user.User) bool {
+func (userManager *UserManager) LogoutUser(userToLogout *user.User) bool {
 	var index = -1
-	for i, v := range loggedUsers {
+	for i, v := range userManager.loggedUsers {
 		if v == userToLogout {
 			index = i
 			break
@@ -86,6 +88,11 @@ func LogoutUser(userToLogout *user.User) bool {
 	if index == -1 {
 		return false
 	}
-	loggedUsers = append(loggedUsers[:index], loggedUsers[index+1:]...)
+	userManager.loggedUsers = append(userManager.loggedUsers[:index], userManager.loggedUsers[index+1:]...)
 	return true
+}
+
+func NewUserManager() *UserManager {
+	userManager := UserManager{make([]*user.User, 0), make([]*user.User, 0)}
+	return &userManager
 }

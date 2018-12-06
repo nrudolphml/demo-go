@@ -12,6 +12,8 @@ func main() {
 	shell := ishell.New()
 	shell.SetPrompt("Tweeter >> ")
 	shell.Print("Type 'help' to know commands\n")
+	tweetManager := service.NewTweetManager()
+	userManager := service.NewUserManager()
 
 	shell.AddCmd(&ishell.Cmd{
 		Name: "publishTweet",
@@ -28,21 +30,21 @@ func main() {
 
 			text := c.ReadLine()
 
-			user, err := service.GetUser(username)
+			user, err := userManager.GetUser(username)
 
 			if err != nil {
 				c.Println("An error has occurred: ", err, "\n")
 				return
 			}
 
-			if !service.IsUserLoggedIn(user) {
+			if !userManager.IsUserLoggedIn(user) {
 				c.Println("The user must login to publish tweets\n")
 				return
 			}
 
 			tweet := domain.NewTweet(user, text)
 
-			if _, err := service.PublishTweet(tweet); err != nil {
+			if _, err := tweetManager.PublishTweet(tweet); err != nil {
 				c.Println("An error has occurred: ", err, "\n")
 				return
 			}
@@ -60,7 +62,7 @@ func main() {
 
 			defer c.ShowPrompt(true)
 
-			tweets := service.GetTweets()
+			tweets := tweetManager.GetTweets()
 
 			for _, tweet := range tweets {
 				printTweet(c, tweet)
@@ -85,7 +87,7 @@ func main() {
 			c.Print("Write your password: ")
 			pass := c.ReadLine()
 
-			if _, err := service.AddUser(username, email, nickname, pass); err != nil {
+			if _, err := userManager.AddUser(username, email, nickname, pass); err != nil {
 				c.Println("An error has occurred: ", err, "\n")
 				return
 			}
@@ -113,7 +115,7 @@ func main() {
 				return
 			}
 
-			tweet, err := service.GetTweetById(numId)
+			tweet, err := tweetManager.GetTweetById(numId)
 			if err != nil {
 				c.Println("An error has occurred: ", err, "\n")
 				return
@@ -137,14 +139,14 @@ func main() {
 			c.Print("Write user's username/email/nickname: ")
 			identifier := c.ReadLine()
 
-			owner, err := service.GetUser(identifier)
+			owner, err := userManager.GetUser(identifier)
 
 			if err != nil {
 				c.Println("An error has occurred: ", err, "\n")
 				return
 			}
 
-			count := service.CountTweetsByUser(owner)
+			count := tweetManager.CountTweetsByUser(owner)
 
 			c.Printf("Amount of tweets by %s: %d\nhel", owner.Nickname, count)
 
@@ -166,7 +168,7 @@ func main() {
 			c.Print("Write your password: ")
 			pass := c.ReadLine()
 
-			if _, err := service.LoginUser(identifier, pass); err != nil {
+			if _, err := userManager.LoginUser(identifier, pass); err != nil {
 				c.Println("An error has occurred: ", err, "\n")
 				return
 			}
@@ -187,14 +189,14 @@ func main() {
 			c.Print("Write the user's username/email/nickname: ")
 			identifier := c.ReadLine()
 
-			owner, err := service.GetUser(identifier)
+			owner, err := userManager.GetUser(identifier)
 
 			if err != nil {
 				c.Println("An error has occurred: ", err, "\n")
 				return
 			}
 
-			if !service.LogoutUser(owner) {
+			if !userManager.LogoutUser(owner) {
 				c.Println("An error has occurred: ", err, "\n")
 				return
 			}

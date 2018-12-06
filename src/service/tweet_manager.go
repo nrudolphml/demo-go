@@ -6,17 +6,12 @@ import (
 	"github.com/nrudolph/twitter/src/domain/user"
 )
 
-var tweets []*domain.Tweet
-var tweetsByOwner map[*user.User][]*domain.Tweet
-
-func InitializeService() {
-	tweets = make([]*domain.Tweet, 0)
-	users = make([]*user.User, 0)
-	loggedUsers = make([]*user.User, 0)
-	tweetsByOwner = make(map[*user.User][]*domain.Tweet)
+type TweetManager struct {
+	tweets        []*domain.Tweet
+	tweetsByOwner map[*user.User][]*domain.Tweet
 }
 
-func PublishTweet(tweetToPublish *domain.Tweet) (int, error) {
+func (tweetManager *TweetManager) PublishTweet(tweetToPublish *domain.Tweet) (int, error) {
 	if tweetToPublish.User == nil {
 		return -1, errors.New("user is required")
 	}
@@ -26,25 +21,25 @@ func PublishTweet(tweetToPublish *domain.Tweet) (int, error) {
 	if len(tweetToPublish.Text) > 140 {
 		return -1, errors.New("tweet over 140 characters")
 	}
-	tweetToPublish.Id = len(tweets)
-	tweets = append(tweets, tweetToPublish)
+	tweetToPublish.Id = len(tweetManager.tweets)
+	tweetManager.tweets = append(tweetManager.tweets, tweetToPublish)
 
-	listOfTweets, exists := tweetsByOwner[tweetToPublish.User]
+	listOfTweets, exists := tweetManager.tweetsByOwner[tweetToPublish.User]
 	if exists {
-		tweetsByOwner[tweetToPublish.User] = append(listOfTweets, tweetToPublish)
+		tweetManager.tweetsByOwner[tweetToPublish.User] = append(listOfTweets, tweetToPublish)
 	} else {
-		tweetsByOwner[tweetToPublish.User] = []*domain.Tweet{tweetToPublish}
+		tweetManager.tweetsByOwner[tweetToPublish.User] = []*domain.Tweet{tweetToPublish}
 	}
 
 	return tweetToPublish.Id, nil
 }
 
-func GetTweets() []*domain.Tweet {
-	return tweets
+func (tweetManager *TweetManager) GetTweets() []*domain.Tweet {
+	return tweetManager.tweets
 }
 
-func GetTweetById(id int) (*domain.Tweet, error) {
-	for _, v := range tweets {
+func (tweetManager *TweetManager) GetTweetById(id int) (*domain.Tweet, error) {
+	for _, v := range tweetManager.tweets {
 		if v.Id == id {
 			return v, nil
 		}
@@ -52,18 +47,56 @@ func GetTweetById(id int) (*domain.Tweet, error) {
 	return nil, errors.New("no tweet found with id")
 }
 
-func CountTweetsByUser(owner *user.User) int {
-	tweets, exists := tweetsByOwner[owner]
+func (tweetManager *TweetManager) CountTweetsByUser(owner *user.User) int {
+	tweets, exists := tweetManager.tweetsByOwner[owner]
 	if !exists {
 		return 0
 	}
 	return len(tweets)
 }
 
-func GetTweetsByUser(owner *user.User) []*domain.Tweet {
-	tweets, exists := tweetsByOwner[owner]
+func (tweetManager *TweetManager) GetTweetsByUser(owner *user.User) []*domain.Tweet {
+	tweets, exists := tweetManager.tweetsByOwner[owner]
 	if !exists {
 		return nil
 	}
 	return tweets
+}
+
+func (tweetManager *TweetManager) DeleteTweet(id int) (bool, error) {
+	var index = -1
+	var tweet *domain.Tweet
+	for i, v := range tweetManager.tweets {
+		if v.Id == id {
+			index = i
+			tweet = v
+			break
+		}
+	}
+	if index == -1 {
+		return false, errors.New("the tweet doesn't exist")
+	}
+	tweetManager.tweets = append(tweetManager.tweets[:index], tweetManager.tweets[index+1:]...)
+
+	tweetList := tweetManager.tweetsByOwner[tweet.User]
+
+	index = -1
+	for i, v := range tweetList {
+		if v.Id == id {
+			index = i
+			break
+		}
+	}
+
+	if index == -1 {
+		return false, errors.New("the tweet doesn't exist")
+	}
+	tweetManager.tweetsByOwner[tweet.User] = append(tweetList[:index], tweetList[index+1:]...)
+	return true, nil
+
+}
+
+func NewTweetManager() *TweetManager {
+	tweetManager := TweetManager{make([]*domain.Tweet, 0), make(map[*user.User][]*domain.Tweet)}
+	return &tweetManager
 }
