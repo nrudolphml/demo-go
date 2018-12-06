@@ -75,7 +75,7 @@ func IsUserLoggedIn(userToCheck *user.User) bool {
 	return isUserLogged(userToCheck.Username)
 }
 
-func LogoutUser(userToLogout *user.User) {
+func LogoutUser(userToLogout *user.User) bool {
 	var index = -1
 	for i, v := range loggedUsers {
 		if v == userToLogout {
@@ -83,7 +83,9 @@ func LogoutUser(userToLogout *user.User) {
 			break
 		}
 	}
-	if index != -1 {
-		loggedUsers = append(loggedUsers[:index], loggedUsers[index+1:]...)
+	if index == -1 {
+		return false
 	}
+	loggedUsers = append(loggedUsers[:index], loggedUsers[index+1:]...)
+	return true
 }

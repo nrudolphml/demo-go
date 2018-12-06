@@ -178,6 +178,34 @@ func main() {
 		},
 	})
 
+	shell.AddCmd(&ishell.Cmd{
+		Name: "logout",
+		Help: "Log out a user",
+		Func: func(c *ishell.Context) {
+			defer c.ShowPrompt(true)
+
+			c.Print("Write the user's username/email/nickname: ")
+			identifier := c.ReadLine()
+
+			owner, err := service.GetUser(identifier)
+
+			if err != nil {
+				c.Println("An error has occurred: ", err, "\n")
+				return
+			}
+
+			if !service.LogoutUser(owner) {
+				c.Println("An error has occurred: ", err, "\n")
+				return
+			}
+
+			c.Print("User logged out\n")
+
+			return
+
+		},
+	})
+
 	shell.Run()
 
 }
