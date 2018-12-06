@@ -17,7 +17,7 @@ func TestPublishedTweetIsSaved(t *testing.T) {
 	tweet = domain.NewTweet(user, text)
 
 	// Operation
-	_ = service.PublishTweet(tweet)
+	_, _ = service.PublishTweet(tweet)
 
 	// Validation
 	publishedTweet := service.GetTweets()[0]
@@ -42,8 +42,7 @@ func TestWithoutUserIsNotPublished(t *testing.T) {
 
 	// Operation
 
-	var err error
-	err = service.PublishTweet(tweet)
+	_, err := service.PublishTweet(tweet)
 
 	// Validation
 	if err != nil && err.Error() != "user is required" {
@@ -64,7 +63,7 @@ func TestTweetWithoutTextIsNotPublished(t *testing.T) {
 	// Operation
 
 	var err error
-	err = service.PublishTweet(tweet)
+	_, err = service.PublishTweet(tweet)
 
 	// Validation
 	if err != nil && err.Error() != "text is required" {
@@ -85,7 +84,7 @@ func TestTweetWhichExceeding140CharactersIsNotPublished(t *testing.T) {
 	// Operation
 
 	var err error
-	err = service.PublishTweet(tweet)
+	_, err = service.PublishTweet(tweet)
 
 	// Validation
 	if err != nil && err.Error() != "tweet over 140 characters" {
@@ -103,8 +102,8 @@ func TestCanPublishAndRetrieveMoreThanOneTweet(t *testing.T) {
 	secondTweet = domain.NewTweet(tweetUser, "Mi segundo tweet")
 
 	// Operations
-	_ = service.PublishTweet(tweet)
-	_ = service.PublishTweet(secondTweet)
+	_, _ = service.PublishTweet(tweet)
+	_, _ = service.PublishTweet(secondTweet)
 
 	// Validation
 
@@ -138,4 +137,23 @@ func isValidTweet(t *testing.T, tweet *domain.Tweet, user string, text string) b
 	}
 
 	return true
+}
+
+func TestCanRetrieveTweetById(t *testing.T) {
+	// Init
+	service.InitializeService()
+	var tweet *domain.Tweet
+	var id int
+
+	tweetUser, _ := service.AddUser("pepe", "pepe@pepe.com", "Pepe", "cont")
+	text := "Super tweet"
+
+	tweet = domain.NewTweet(tweetUser, text)
+
+	// Operation
+	id, _ = service.PublishTweet(tweet)
+
+	// Validation
+	publishedTweet, _ := service.GetTweetById(id)
+	isValidTweet(t, publishedTweet, tweetUser.Username, text)
 }

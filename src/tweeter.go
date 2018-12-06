@@ -4,6 +4,7 @@ import (
 	"github.com/abiosoft/ishell"
 	"github.com/nrudolph/twitter/src/domain"
 	"github.com/nrudolph/twitter/src/service"
+	"strconv"
 )
 
 func main() {
@@ -36,7 +37,7 @@ func main() {
 
 			tweet := domain.NewTweet(user, text)
 
-			if err := service.PublishTweet(tweet); err != nil {
+			if _, err := service.PublishTweet(tweet); err != nil {
 				c.Println("An error has occurred: ", err, "\n")
 				return
 			}
@@ -48,8 +49,8 @@ func main() {
 	})
 
 	shell.AddCmd(&ishell.Cmd{
-		Name: "showTweet",
-		Help: "Shows a tweet",
+		Name: "showTweets",
+		Help: "Shows all tweets",
 		Func: func(c *ishell.Context) {
 
 			defer c.ShowPrompt(true)
@@ -57,9 +58,7 @@ func main() {
 			tweets := service.GetTweets()
 
 			for _, tweet := range tweets {
-				c.Printf("%s: %s, %d-%02d-%02d %02d:%02d\n", tweet.User.Nickname, tweet.Text,
-					(*tweet.Date).Year(), (*tweet.Date).Month(), (*tweet.Date).Day(), (*tweet.Date).Hour(),
-					(*tweet.Date).Minute())
+				printTweet(c, tweet)
 			}
 
 			return
@@ -93,6 +92,43 @@ func main() {
 		},
 	})
 
+	shell.AddCmd(&ishell.Cmd{
+		Name: "getTweetWithId",
+		Help: "Get tweet by Id",
+		Func: func(c *ishell.Context) {
+			defer c.ShowPrompt(true)
+
+			c.Print("Write tweet id: ")
+			id := c.ReadLine()
+
+			numId, nanId := strconv.Atoi(id)
+
+			if nanId != nil {
+				c.Println("An error has occurred: ", nanId, "\n")
+				return
+			}
+
+			tweet, err := service.GetTweetById(numId)
+			if err != nil {
+				c.Println("An error has occurred: ", err, "\n")
+				return
+			}
+
+			printTweet(c, tweet)
+
+			c.Print("User added\n")
+
+			return
+
+		},
+	})
+
 	shell.Run()
 
+}
+
+func printTweet(c *ishell.Context, tweet *domain.Tweet) {
+	c.Printf("%s: %s, %d-%02d-%02d %02d:%02d\n", tweet.User.Nickname, tweet.Text,
+		(*tweet.Date).Year(), (*tweet.Date).Month(), (*tweet.Date).Day(), (*tweet.Date).Hour(),
+		(*tweet.Date).Minute())
 }
