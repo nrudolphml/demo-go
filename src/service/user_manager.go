@@ -42,7 +42,7 @@ func (userManager *UserManager) checkIfUserExists(username string, email string,
 
 func (userManager *UserManager) GetUser(identification string) (*user.User, error) {
 	for _, v := range userManager.users {
-		if user.IsUser(v, identification) {
+		if v.IsUser(identification) {
 			return v, nil
 		}
 	}
@@ -54,7 +54,7 @@ func (userManager *UserManager) LoginUser(identification string, password string
 	if e != nil {
 		return false, e
 	}
-	if !user.CheckPassword(currentUser, password) {
+	if !currentUser.CheckPassword(password) {
 		return false, errors.New("invalid credentials")
 	}
 	if userManager.isUserLogged(identification) {
@@ -66,7 +66,7 @@ func (userManager *UserManager) LoginUser(identification string, password string
 
 func (userManager *UserManager) isUserLogged(identification string) bool {
 	for _, v := range userManager.loggedUsers {
-		if user.IsUser(v, identification) {
+		if v.IsUser(identification) {
 			return true
 		}
 	}

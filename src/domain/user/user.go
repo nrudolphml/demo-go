@@ -9,10 +9,10 @@ func NewUser(username string, email string, password string, nickname string) *U
 	return &u
 }
 
-func CheckPassword(user *User, password string) bool {
+func (user *User) CheckPassword(password string) bool {
 	return user.password == password
 }
 
-func IsUser(user *User, identification string) bool {
+func (user *User) IsUser(identification string) bool {
 	return user.Username == identification || user.Email == identification || user.Nickname == identification
 }
