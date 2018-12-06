@@ -54,11 +54,13 @@ func main() {
 
 			defer c.ShowPrompt(true)
 
-			tweet := service.GetTweet()
+			tweets := service.GetTweets()
 
-			c.Printf("%s: %s, %d-%02d-%02d %02d:%02d\n", tweet.User, tweet.Text,
-				(*tweet.Date).Year(), (*tweet.Date).Month(), (*tweet.Date).Day(), (*tweet.Date).Hour(),
-				(*tweet.Date).Minute())
+			for _, tweet := range tweets {
+				c.Printf("%s: %s, %d-%02d-%02d %02d:%02d\n", tweet.User.Nickname, tweet.Text,
+					(*tweet.Date).Year(), (*tweet.Date).Month(), (*tweet.Date).Day(), (*tweet.Date).Hour(),
+					(*tweet.Date).Minute())
+			}
 
 			return
 		},
