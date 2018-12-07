@@ -122,6 +122,33 @@ func main() {
 	})
 
 	shell.AddCmd(&ishell.Cmd{
+		Name: "searchTweet",
+		Help: "Searchs a tweet that contains the query",
+		Func: func(c *ishell.Context) {
+
+			defer c.ShowPrompt(true)
+
+			c.Print("Write your query: ")
+			query := c.ReadLine()
+
+			searchResult := make(chan domain.Tweet)
+			tweetManager.SearchTweetsContaining(query, searchResult)
+
+			amountOfResults := 0
+			for tweet := range searchResult {
+				if tweet == nil {
+					break
+				}
+				amountOfResults++
+				c.Printf("%s\n", tweet.String())
+			}
+
+			c.Printf("Found %d result/s\n", amountOfResults)
+			return
+		},
+	})
+
+	shell.AddCmd(&ishell.Cmd{
 		Name: "registerUser",
 		Help: "Registers a user",
 		Func: func(c *ishell.Context) {

@@ -5,6 +5,7 @@ import (
 	"github.com/nrudolph/twitter/src/domain/user"
 	"github.com/nrudolph/twitter/src/persistency"
 	"github.com/nrudolph/twitter/src/service"
+	"strings"
 	"testing"
 )
 
@@ -263,7 +264,7 @@ func TestCanRetrieveTheTweetsSentByAnUser(t *testing.T) {
 func TestPublishedTweetIsSavedToExternalResource(t *testing.T) {
 
 	// Initialization
-	var tweetWriter persistency.TweeterWritter
+	var tweetWriter persistency.TweeterWriter
 	tweetWriter = persistency.NewMemoryTweetWriter() // Mock implementation
 	tweetManager := service.NewTweetManager(tweetWriter)
 
@@ -284,5 +285,32 @@ func TestPublishedTweetIsSavedToExternalResource(t *testing.T) {
 	if savedTweet.GetId() != id {
 		t.Errorf("A tweet was expected wid id %d but was %d", id, savedTweet.GetId())
 		return
+	}
+}
+
+func TestCanSearchForTweetContainingText(t *testing.T) {
+	// Initialization
+	var tweetWriter persistency.TweeterWriter
+	tweetWriter = persistency.NewMemoryTweetWriter()
+	tweetManager := service.NewTweetManager(tweetWriter)
+	// Create and publish a tweet
+
+	newUser := user.NewUser("p", "p", "p", "p")
+	tweet := domain.NewTextTweet(newUser, "My first tweet")
+	tweetManager.PublishTweet(tweet)
+
+	// Operation
+	searchResult := make(chan domain.Tweet)
+	query := "first"
+	tweetManager.SearchTweetsContaining(query, searchResult)
+
+	// Validation
+	foundTweet := <-searchResult
+
+	if foundTweet == nil {
+		t.Error("Was expected to find one tweet but was nil")
+	}
+	if !strings.Contains(foundTweet.GetText(), query) {
+		t.Errorf("Was expected that %s contains %s", foundTweet.GetText(), query)
 	}
 }

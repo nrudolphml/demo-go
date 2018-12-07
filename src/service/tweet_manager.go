@@ -5,13 +5,14 @@ import (
 	"github.com/nrudolph/twitter/src/domain"
 	"github.com/nrudolph/twitter/src/domain/user"
 	"github.com/nrudolph/twitter/src/persistency"
+	. "strings"
 )
 
 type TweetManager struct {
 	tweets        []domain.Tweet
 	tweetsByOwner map[*user.User][]domain.Tweet
 	id            int
-	writer        persistency.TweeterWritter
+	writer        persistency.TweeterWriter
 }
 
 func (tweetManager *TweetManager) PublishTweet(tweetToPublish domain.Tweet) (int, error) {
@@ -106,7 +107,21 @@ func (tweetManager *TweetManager) DeleteTweet(owner *user.User, id int) (bool, e
 
 }
 
-func NewTweetManager(writer persistency.TweeterWritter) *TweetManager {
+func NewTweetManager(writer persistency.TweeterWriter) *TweetManager {
 	tweetManager := TweetManager{make([]domain.Tweet, 0), make(map[*user.User][]domain.Tweet), 0, writer}
 	return &tweetManager
+}
+
+func (tweetManager *TweetManager) SearchTweetsContaining(query string, searchResult chan domain.Tweet) {
+	go tweetManager.searchTweets(query, searchResult)
+}
+
+func (tweetManager *TweetManager) searchTweets(query string, searchResult chan domain.Tweet) {
+	for _, v := range tweetManager.tweets {
+		if Contains(v.GetText(), query) {
+			searchResult <- v
+		}
+	}
+	searchResult <- nil
+	return
 }

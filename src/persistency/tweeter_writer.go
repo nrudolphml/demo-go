@@ -2,6 +2,6 @@ package persistency
 
 import "github.com/nrudolph/twitter/src/domain"
 
-type TweeterWritter interface {
+type TweeterWriter interface {
 	WriteTweet(tweet domain.Tweet)
 }
