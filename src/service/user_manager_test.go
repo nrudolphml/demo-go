@@ -1,6 +1,8 @@
 package service_test
 
 import (
+	"github.com/nrudolph/twitter/src/domain"
+	"github.com/nrudolph/twitter/src/domain/user"
 	"github.com/nrudolph/twitter/src/service"
 	"testing"
 )
@@ -123,4 +125,28 @@ func TestLogout(t *testing.T) {
 	if userManager.IsUserLoggedIn(user) {
 		t.Error("user could not be logged out")
 	}
+}
+
+func TestDeleteTweet(t *testing.T) {
+
+	// init
+	_ = service.NewUserManager()
+	tweetManager := service.NewTweetManager()
+
+	newUser := user.NewUser("p", "p", "p", "p")
+
+	tweet := domain.NewTextTweet(newUser, "SuperTweet")
+
+	i, _ := tweetManager.PublishTweet(tweet)
+
+	// operation
+
+	if _, err := tweetManager.DeleteTweet(newUser, i); err != nil {
+		t.Errorf("error al eliminar : %s\n", err.Error())
+	}
+
+	if tweetManager.CountTweetsByUser(newUser) != 0 {
+		t.Errorf("Was expected 0 but was %d\n", tweetManager.CountTweetsByUser(newUser))
+	}
+
 }
