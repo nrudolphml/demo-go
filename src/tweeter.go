@@ -284,6 +284,80 @@ func main() {
 		},
 	})
 
+	shell.AddCmd(&ishell.Cmd{
+		Name: "followUser",
+		Help: "Adds user to my followers list",
+		Func: func(c *ishell.Context) {
+			defer c.ShowPrompt(true)
+
+			c.Print("Write the user's username/email/nickname: ")
+			identifier := c.ReadLine()
+
+			owner, err := userManager.GetUser(identifier)
+
+			if err != nil {
+				c.Println("An error has occurred: ", err, "\n")
+				return
+			}
+
+			c.Print("Write the user to follow username/email/nickname: ")
+			identifierToFollow := c.ReadLine()
+
+			userToFollow, err := userManager.GetUser(identifierToFollow)
+
+			if err != nil {
+				c.Println("An error has occurred: ", err, "\n")
+				return
+			}
+
+			err = userManager.FollowUser(owner, userToFollow)
+
+			if err != nil {
+				c.Println("An error has occurred: ", err, "\n")
+				return
+			}
+
+			c.Printf("User %s is now following %s\n", owner.Nickname, userToFollow.Nickname)
+
+			return
+
+		},
+	})
+
+	shell.AddCmd(&ishell.Cmd{
+		Name: "showUserFollowers",
+		Help: "List the users that the user follows",
+		Func: func(c *ishell.Context) {
+			defer c.ShowPrompt(true)
+
+			c.Print("Write the user's username/email/nickname: ")
+			identifier := c.ReadLine()
+
+			owner, err := userManager.GetUser(identifier)
+
+			if err != nil {
+				c.Println("An error has occurred: ", err, "\n")
+				return
+			}
+
+			followers := userManager.GetUserFollowers(owner)
+
+			if followers == nil {
+				c.Printf("%s doesn't follow other users \n", owner.Nickname)
+				return
+			}
+
+			for _, v := range followers {
+				c.Printf("User: %s \n", v.Nickname)
+			}
+
+			c.Printf("Following %d users\n", len(followers))
+
+			return
+
+		},
+	})
+
 	shell.Run()
 
 }

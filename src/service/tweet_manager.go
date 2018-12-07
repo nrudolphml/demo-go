@@ -5,7 +5,7 @@ import (
 	"github.com/nrudolph/twitter/src/domain"
 	"github.com/nrudolph/twitter/src/domain/user"
 	"github.com/nrudolph/twitter/src/persistency"
-	. "strings"
+	"strings"
 )
 
 type TweetManager struct {
@@ -113,15 +113,13 @@ func NewTweetManager(writer persistency.TweeterWriter) *TweetManager {
 }
 
 func (tweetManager *TweetManager) SearchTweetsContaining(query string, searchResult chan domain.Tweet) {
-	go tweetManager.searchTweets(query, searchResult)
-}
-
-func (tweetManager *TweetManager) searchTweets(query string, searchResult chan domain.Tweet) {
-	for _, v := range tweetManager.tweets {
-		if Contains(v.GetText(), query) {
-			searchResult <- v
+	go func() {
+		for _, v := range tweetManager.tweets {
+			if strings.Contains(v.GetText(), query) {
+				searchResult <- v
+			}
 		}
-	}
-	searchResult <- nil
-	return
+		searchResult <- nil
+		return
+	}()
 }
