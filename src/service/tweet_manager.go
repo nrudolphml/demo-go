@@ -9,6 +9,7 @@ import (
 type TweetManager struct {
 	tweets        []domain.Tweet
 	tweetsByOwner map[*user.User][]domain.Tweet
+	id            int
 }
 
 func (tweetManager *TweetManager) PublishTweet(tweetToPublish domain.Tweet) (int, error) {
@@ -21,7 +22,8 @@ func (tweetManager *TweetManager) PublishTweet(tweetToPublish domain.Tweet) (int
 	if len(tweetToPublish.GetText()) > 140 {
 		return -1, errors.New("tweet over 140 characters")
 	}
-	tweetToPublish.SetId(len(tweetManager.tweets))
+	tweetToPublish.SetId(tweetManager.id)
+	tweetManager.id++
 	tweetManager.tweets = append(tweetManager.tweets, tweetToPublish)
 
 	listOfTweets, exists := tweetManager.tweetsByOwner[tweetToPublish.GetUser()]
@@ -102,6 +104,6 @@ func (tweetManager *TweetManager) DeleteTweet(owner *user.User, id int) (bool, e
 }
 
 func NewTweetManager() *TweetManager {
-	tweetManager := TweetManager{make([]domain.Tweet, 0), make(map[*user.User][]domain.Tweet)}
+	tweetManager := TweetManager{make([]domain.Tweet, 0), make(map[*user.User][]domain.Tweet), 0}
 	return &tweetManager
 }

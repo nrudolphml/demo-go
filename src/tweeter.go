@@ -16,41 +16,26 @@ func main() {
 	userManager := service.NewUserManager()
 
 	shell.AddCmd(&ishell.Cmd{
-		Name: "publishTextTweet",
-		Help: "Publishes a text tweet",
+		Name: "publishTweet",
+		Help: "Publishes a tweet",
 		Func: func(c *ishell.Context) {
 
 			defer c.ShowPrompt(true)
 
-			c.Print("Write your username: ")
+			c.Print("Write the type of tweet to publish (text/image/quote): ")
 
-			username := c.ReadLine()
+			tweetType := c.ReadLine()
 
-			c.Print("Write your tweet: ")
-
-			text := c.ReadLine()
-
-			user, err := userManager.GetUser(username)
-
-			if err != nil {
-				c.Println("An error has occurred: ", err, "\n")
-				return
+			switch tweetType {
+			case "text":
+				publishTextTweet(c, userManager, tweetManager)
+			case "image":
+				publishImageTweet(c, userManager, tweetManager)
+			case "quote":
+				publishQuoteTweet(c, userManager, tweetManager)
+			default:
+				c.Println("The type of tweet is not valid\n")
 			}
-
-			if !userManager.IsUserLoggedIn(user) {
-				c.Println("The user must login to publish tweets\n")
-				return
-			}
-
-			tweet := domain.NewTextTweet(user, text)
-
-			if _, err := tweetManager.PublishTweet(tweet); err != nil {
-				c.Println("An error has occurred: ", err, "\n")
-				return
-			}
-
-			c.Print("Tweet sent\n")
-
 			return
 		},
 	})
@@ -102,6 +87,23 @@ func main() {
 	})
 
 	shell.AddCmd(&ishell.Cmd{
+		Name: "showTweetsWithId",
+		Help: "Shows all tweets with Id and date",
+		Func: func(c *ishell.Context) {
+
+			defer c.ShowPrompt(true)
+
+			tweets := tweetManager.GetTweets()
+
+			for _, tweet := range tweets {
+				c.Printf("%s\n", tweet.FullString())
+			}
+
+			return
+		},
+	})
+
+	shell.AddCmd(&ishell.Cmd{
 		Name: "showTweets",
 		Help: "Shows all tweets",
 		Func: func(c *ishell.Context) {
@@ -111,7 +113,7 @@ func main() {
 			tweets := tweetManager.GetTweets()
 
 			for _, tweet := range tweets {
-				c.Printf("%s\n", tweet.FullString())
+				c.Printf("%s\n", tweet.String())
 			}
 
 			return
@@ -256,4 +258,123 @@ func main() {
 
 	shell.Run()
 
+}
+
+func publishTextTweet(c *ishell.Context, userManager *service.UserManager, tweetManager *service.TweetManager) {
+	c.Print("Write your username: ")
+
+	username := c.ReadLine()
+
+	c.Print("Write your tweet: ")
+
+	text := c.ReadLine()
+
+	user, err := userManager.GetUser(username)
+
+	if err != nil {
+		c.Println("An error has occurred: ", err, "\n")
+		return
+	}
+
+	if !userManager.IsUserLoggedIn(user) {
+		c.Println("The user must login to publish tweets\n")
+		return
+	}
+
+	tweet := domain.NewTextTweet(user, text)
+
+	if _, err := tweetManager.PublishTweet(tweet); err != nil {
+		c.Println("An error has occurred: ", err, "\n")
+		return
+	}
+
+	c.Print("Tweet sent\n")
+	return
+}
+
+func publishImageTweet(c *ishell.Context, userManager *service.UserManager, tweetManager *service.TweetManager) {
+	c.Print("Write your username: ")
+
+	username := c.ReadLine()
+
+	c.Print("Write your tweet: ")
+
+	text := c.ReadLine()
+
+	c.Print("Write the image URL: ")
+
+	url := c.ReadLine()
+
+	user, err := userManager.GetUser(username)
+
+	if err != nil {
+		c.Println("An error has occurred: ", err, "\n")
+		return
+	}
+
+	if !userManager.IsUserLoggedIn(user) {
+		c.Println("The user must login to publish tweets\n")
+		return
+	}
+
+	tweet := domain.NewImageTweet(user, text, url)
+
+	if _, err := tweetManager.PublishTweet(tweet); err != nil {
+		c.Println("An error has occurred: ", err, "\n")
+		return
+	}
+
+	c.Print("Tweet sent\n")
+	return
+}
+
+func publishQuoteTweet(c *ishell.Context, userManager *service.UserManager, tweetManager *service.TweetManager) {
+	c.Print("Write your username: ")
+
+	username := c.ReadLine()
+
+	c.Print("Write your tweet: ")
+
+	text := c.ReadLine()
+
+	c.Print("Write the quoted tweet id: ")
+
+	id := c.ReadLine()
+
+	numId, err := strconv.Atoi(id)
+
+	if err != nil {
+		c.Println("The id is not valid\n")
+		return
+	}
+
+	quotedTweet, err := tweetManager.GetTweetById(numId)
+
+	if err != nil {
+		c.Println("An error has occurred: ", err, "\n")
+		return
+	}
+
+	user, err := userManager.GetUser(username)
+
+	if err != nil {
+		c.Println("An error has occurred: ", err, "\n")
+		return
+	}
+
+	if !userManager.IsUserLoggedIn(user) {
+		c.Println("The user must login to publish tweets\n")
+		return
+	}
+
+	tweet := domain.NewQuoteTweet(user, text, quotedTweet)
+
+	if _, err := tweetManager.PublishTweet(tweet); err != nil {
+		c.Println("An error has occurred: ", err, "\n")
+		return
+	}
+
+	c.Print("Tweet sent\n")
+
+	return
 }
