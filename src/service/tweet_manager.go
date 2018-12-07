@@ -4,12 +4,14 @@ import (
 	"errors"
 	"github.com/nrudolph/twitter/src/domain"
 	"github.com/nrudolph/twitter/src/domain/user"
+	"github.com/nrudolph/twitter/src/persistency"
 )
 
 type TweetManager struct {
 	tweets        []domain.Tweet
 	tweetsByOwner map[*user.User][]domain.Tweet
 	id            int
+	writer        persistency.TweeterWritter
 }
 
 func (tweetManager *TweetManager) PublishTweet(tweetToPublish domain.Tweet) (int, error) {
@@ -32,6 +34,7 @@ func (tweetManager *TweetManager) PublishTweet(tweetToPublish domain.Tweet) (int
 	} else {
 		tweetManager.tweetsByOwner[tweetToPublish.GetUser()] = []domain.Tweet{tweetToPublish}
 	}
+	tweetManager.writer.WriteTweet(tweetToPublish)
 
 	return tweetToPublish.GetId(), nil
 }
@@ -103,7 +106,7 @@ func (tweetManager *TweetManager) DeleteTweet(owner *user.User, id int) (bool, e
 
 }
 
-func NewTweetManager() *TweetManager {
-	tweetManager := TweetManager{make([]domain.Tweet, 0), make(map[*user.User][]domain.Tweet), 0}
+func NewTweetManager(writer persistency.TweeterWritter) *TweetManager {
+	tweetManager := TweetManager{make([]domain.Tweet, 0), make(map[*user.User][]domain.Tweet), 0, writer}
 	return &tweetManager
 }

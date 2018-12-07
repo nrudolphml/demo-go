@@ -3,12 +3,13 @@ package service_test
 import (
 	"github.com/nrudolph/twitter/src/domain"
 	"github.com/nrudolph/twitter/src/domain/user"
+	"github.com/nrudolph/twitter/src/persistency"
 	"github.com/nrudolph/twitter/src/service"
 	"testing"
 )
 
 func TestAddUser(t *testing.T) {
-	_ = service.NewTweetManager()
+	_ = service.NewTweetManager(persistency.NewMemoryTweetWriter())
 	userManager := service.NewUserManager()
 	_, err := userManager.AddUser("pepe", "pepe@pepe.com", "pepe", "pepe123")
 	if err != nil {
@@ -17,7 +18,7 @@ func TestAddUser(t *testing.T) {
 }
 
 func TestAddUserWithExistingUsernameReturnsError(t *testing.T) {
-	_ = service.NewTweetManager()
+	_ = service.NewTweetManager(persistency.NewMemoryTweetWriter())
 	userManager := service.NewUserManager()
 	_, _ = userManager.AddUser("pepe", "pepe@pepe.com", "pepe", "pepe123")
 	_, err := userManager.AddUser("pepe", "pepe2@pepe.com", "pepe2", "pepe1231")
@@ -27,7 +28,7 @@ func TestAddUserWithExistingUsernameReturnsError(t *testing.T) {
 }
 
 func TestAddUserWithExistingEmailReturnsError(t *testing.T) {
-	_ = service.NewTweetManager()
+	_ = service.NewTweetManager(persistency.NewMemoryTweetWriter())
 	userManager := service.NewUserManager()
 	_, _ = userManager.AddUser("pepe", "pepe@pepe.com", "pepe", "pepe123")
 	_, err := userManager.AddUser("pepe2", "pepe@pepe.com", "pepe2", "pepe1231")
@@ -37,7 +38,7 @@ func TestAddUserWithExistingEmailReturnsError(t *testing.T) {
 }
 
 func TestAddUserWithoutUsernameReturnsError(t *testing.T) {
-	_ = service.NewTweetManager()
+	_ = service.NewTweetManager(persistency.NewMemoryTweetWriter())
 	userManager := service.NewUserManager()
 	_, err := userManager.AddUser("", "pepe@pepe.com", "pepe", "pepe123")
 	if err != nil && err.Error() != "username is empty" {
@@ -46,7 +47,7 @@ func TestAddUserWithoutUsernameReturnsError(t *testing.T) {
 }
 
 func TestAddUserWithoutEmailReturnsError(t *testing.T) {
-	_ = service.NewTweetManager()
+	_ = service.NewTweetManager(persistency.NewMemoryTweetWriter())
 	userManager := service.NewUserManager()
 	_, err := userManager.AddUser("pepe", "", "pepe", "pepe123")
 	if err != nil && err.Error() != "email is empty" {
@@ -55,7 +56,7 @@ func TestAddUserWithoutEmailReturnsError(t *testing.T) {
 }
 
 func TestAddUserWithoutNicknameReturnsError(t *testing.T) {
-	_ = service.NewTweetManager()
+	_ = service.NewTweetManager(persistency.NewMemoryTweetWriter())
 	userManager := service.NewUserManager()
 	_, err := userManager.AddUser("pepe", "pepe@pepe.com", "", "pepe123")
 	if err != nil && err.Error() != "nickname is empty" {
@@ -64,7 +65,7 @@ func TestAddUserWithoutNicknameReturnsError(t *testing.T) {
 }
 
 func TestAddUserWithoutPasswordReturnsError(t *testing.T) {
-	_ = service.NewTweetManager()
+	_ = service.NewTweetManager(persistency.NewMemoryTweetWriter())
 	userManager := service.NewUserManager()
 	_, err := userManager.AddUser("pepe", "pepe@pepe.com", "pepe", "")
 	if err != nil && err.Error() != "password is empty" {
@@ -73,7 +74,7 @@ func TestAddUserWithoutPasswordReturnsError(t *testing.T) {
 }
 
 func TestGetUserFromUsername(t *testing.T) {
-	_ = service.NewTweetManager()
+	_ = service.NewTweetManager(persistency.NewMemoryTweetWriter())
 	userManager := service.NewUserManager()
 	_, _ = userManager.AddUser("pepe", "pepe@pepe.com", "pepe", "ppp")
 	_, _ = userManager.AddUser("manolo", "pepe2@pepe.com", "pepe", "ppp")
@@ -87,7 +88,7 @@ func TestGetUserFromUsername(t *testing.T) {
 }
 
 func TestGetUserFromUsernameReturnsErrorForInexistingUsername(t *testing.T) {
-	_ = service.NewTweetManager()
+	_ = service.NewTweetManager(persistency.NewMemoryTweetWriter())
 	userManager := service.NewUserManager()
 	_, _ = userManager.AddUser("pepe", "pepe@pepe.com", "pepe", "ppp")
 	_, _ = userManager.AddUser("manolo", "pepe2@pepe.com", "pepe", "ppp")
@@ -104,7 +105,7 @@ func TestGetUserFromUsernameReturnsErrorForInexistingUsername(t *testing.T) {
 }
 
 func TestLoginUser(t *testing.T) {
-	_ = service.NewTweetManager()
+	_ = service.NewTweetManager(persistency.NewMemoryTweetWriter())
 	userManager := service.NewUserManager()
 	user, _ := userManager.AddUser("pepe", "pepe@pepe.com", "pepe", "ppp")
 	_, _ = userManager.LoginUser(user.Username, "ppp")
@@ -115,7 +116,7 @@ func TestLoginUser(t *testing.T) {
 }
 
 func TestLogout(t *testing.T) {
-	_ = service.NewTweetManager()
+	_ = service.NewTweetManager(persistency.NewMemoryTweetWriter())
 	userManager := service.NewUserManager()
 	user, _ := userManager.AddUser("pepe", "pepe@pepe.com", "pepe", "ppp")
 	_, _ = userManager.LoginUser(user.Username, "ppp")
@@ -131,7 +132,7 @@ func TestDeleteTweet(t *testing.T) {
 
 	// init
 	_ = service.NewUserManager()
-	tweetManager := service.NewTweetManager()
+	tweetManager := service.NewTweetManager(persistency.NewMemoryTweetWriter())
 
 	newUser := user.NewUser("p", "p", "p", "p")
 

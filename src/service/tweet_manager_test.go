@@ -3,6 +3,7 @@ package service_test
 import (
 	"github.com/nrudolph/twitter/src/domain"
 	"github.com/nrudolph/twitter/src/domain/user"
+	"github.com/nrudolph/twitter/src/persistency"
 	"github.com/nrudolph/twitter/src/service"
 	"testing"
 )
@@ -10,7 +11,7 @@ import (
 func TestPublishedTweetIsSaved(t *testing.T) {
 
 	// Initialization
-	tweetManager := service.NewTweetManager()
+	tweetManager := service.NewTweetManager(persistency.NewMemoryTweetWriter())
 	userManager := service.NewUserManager()
 
 	var tweet *domain.TextTweet
@@ -34,7 +35,7 @@ func TestPublishedTweetIsSaved(t *testing.T) {
 
 func TestWithoutUserIsNotPublished(t *testing.T) {
 	// Initialization
-	tweetManager := service.NewTweetManager()
+	tweetManager := service.NewTweetManager(persistency.NewMemoryTweetWriter())
 	_ = service.NewUserManager()
 	var tweet domain.Tweet
 
@@ -55,7 +56,7 @@ func TestWithoutUserIsNotPublished(t *testing.T) {
 
 func TestTweetWithoutTextIsNotPublished(t *testing.T) {
 	// Initialization
-	tweetManager := service.NewTweetManager()
+	tweetManager := service.NewTweetManager(persistency.NewMemoryTweetWriter())
 	userManager := service.NewUserManager()
 	var tweet domain.Tweet
 
@@ -77,7 +78,7 @@ func TestTweetWithoutTextIsNotPublished(t *testing.T) {
 
 func TestTweetWhichExceeding140CharactersIsNotPublished(t *testing.T) {
 	// Initialization
-	tweetManager := service.NewTweetManager()
+	tweetManager := service.NewTweetManager(persistency.NewMemoryTweetWriter())
 	userManager := service.NewUserManager()
 
 	var tweet domain.Tweet
@@ -100,7 +101,7 @@ func TestTweetWhichExceeding140CharactersIsNotPublished(t *testing.T) {
 
 func TestCanPublishAndRetrieveMoreThanOneTweet(t *testing.T) {
 	// Init
-	tweetManager := service.NewTweetManager()
+	tweetManager := service.NewTweetManager(persistency.NewMemoryTweetWriter())
 	userManager := service.NewUserManager()
 
 	var tweet, secondTweet domain.Tweet
@@ -149,7 +150,7 @@ func isValidTweet(t *testing.T, tweet domain.Tweet, user string, text string) bo
 
 func TestCanRetrieveTweetById(t *testing.T) {
 	// Init
-	tweetManager := service.NewTweetManager()
+	tweetManager := service.NewTweetManager(persistency.NewMemoryTweetWriter())
 	userManager := service.NewUserManager()
 	var tweet domain.Tweet
 	var id int
@@ -169,7 +170,7 @@ func TestCanRetrieveTweetById(t *testing.T) {
 
 func TestReturnsErrorWhenRetrieveTweetByIdInvalid(t *testing.T) {
 	// Init
-	tweetManager := service.NewTweetManager()
+	tweetManager := service.NewTweetManager(persistency.NewMemoryTweetWriter())
 	userManager := service.NewUserManager()
 	var tweet domain.Tweet
 
@@ -191,7 +192,7 @@ func TestReturnsErrorWhenRetrieveTweetByIdInvalid(t *testing.T) {
 
 func TestCanCountTheTweetsSentByAnUser(t *testing.T) {
 	// init
-	tweetManager := service.NewTweetManager()
+	tweetManager := service.NewTweetManager(persistency.NewMemoryTweetWriter())
 	userManager := service.NewUserManager()
 	var tweet, secondTweet, thirdTweet domain.Tweet
 
@@ -222,7 +223,7 @@ func TestCanCountTheTweetsSentByAnUser(t *testing.T) {
 
 func TestCanRetrieveTheTweetsSentByAnUser(t *testing.T) {
 	// Initialization
-	tweetManager := service.NewTweetManager()
+	tweetManager := service.NewTweetManager(persistency.NewMemoryTweetWriter())
 	userManager := service.NewUserManager()
 	var tweet, secondTweet, thirdTweet domain.Tweet
 	user1, _ := userManager.AddUser("pepe", "pepe@pepe.com", "Pepe", "pepe")
@@ -255,6 +256,33 @@ func TestCanRetrieveTheTweetsSentByAnUser(t *testing.T) {
 		return
 	}
 	if !isValidTweet(t, secondPublishedTweet, user1.Username, secondText) {
+		return
+	}
+}
+
+func TestPublishedTweetIsSavedToExternalResource(t *testing.T) {
+
+	// Initialization
+	var tweetWriter persistency.TweeterWritter
+	tweetWriter = persistency.NewMemoryTweetWriter() // Mock implementation
+	tweetManager := service.NewTweetManager(tweetWriter)
+
+	var tweet domain.Tweet // Fill the tweet with data
+	u := user.NewUser("p", "p", "p", "p")
+	tweet = domain.NewTextTweet(u, "kjchsbkjac")
+	// Operation
+	id, _ := tweetManager.PublishTweet(tweet)
+
+	// Validation
+	memoryWriter := (tweetWriter).(*persistency.MemoryTweetWriter)
+	savedTweet := memoryWriter.GetLastSavedTweet()
+
+	if savedTweet == nil {
+		t.Error("A tweet was expected but not found")
+		return
+	}
+	if savedTweet.GetId() != id {
+		t.Errorf("A tweet was expected wid id %d but was %d", id, savedTweet.GetId())
 		return
 	}
 }

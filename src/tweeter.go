@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/abiosoft/ishell"
 	"github.com/nrudolph/twitter/src/domain"
+	"github.com/nrudolph/twitter/src/persistency"
 	"github.com/nrudolph/twitter/src/service"
 	"strconv"
 )
@@ -12,7 +13,7 @@ func main() {
 	shell := ishell.New()
 	shell.SetPrompt("Tweeter >> ")
 	shell.Print("Type 'help' to know commands\n")
-	tweetManager := service.NewTweetManager()
+	tweetManager := service.NewTweetManager(persistency.NewFileTweetWritter())
 	userManager := service.NewUserManager()
 
 	shell.AddCmd(&ishell.Cmd{
