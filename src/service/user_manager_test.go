@@ -150,3 +150,24 @@ func TestDeleteTweet(t *testing.T) {
 	}
 
 }
+
+func TestFollowUser(t *testing.T) {
+	userManager := service.NewUserManager()
+	user1, _ := userManager.AddUser("p", "p", "p", "p")
+	user2, _ := userManager.AddUser("n", "n", "n", "n")
+
+	err := userManager.FollowUser(user1, user2)
+
+	if err != nil {
+		t.Errorf("An error occurred: %s", err.Error())
+		return
+	}
+
+	followers := userManager.GetUserFollowers(user1)
+
+	if len(followers) != 1 {
+		t.Errorf("Was expected 1 but was %d", len(followers))
+		return
+	}
+
+}

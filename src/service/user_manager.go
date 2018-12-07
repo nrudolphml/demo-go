@@ -92,6 +92,17 @@ func (userManager *UserManager) LogoutUser(userToLogout *user.User) bool {
 	return true
 }
 
+func (userManager *UserManager) FollowUser(u *user.User, userToFollow *user.User) error {
+	if !u.FollowUser(userToFollow) {
+		return errors.New("THe user is already following the userToFollow")
+	}
+	return nil
+}
+
+func (userManager *UserManager) GetUserFollowers(u *user.User) []*user.User {
+	return u.GetFollowers()
+}
+
 func NewUserManager() *UserManager {
 	userManager := UserManager{make([]*user.User, 0), make([]*user.User, 0)}
 	return &userManager
