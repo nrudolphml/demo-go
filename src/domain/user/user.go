@@ -1,8 +1,11 @@
 package user
 
 type User struct {
-	Username, Email, password, Nickname string
-	following                           []*User
+	Username  string `json:"username"`
+	Email     string `json:"email"`
+	password  string
+	Nickname  string `json:"nickname"`
+	following []*User
 }
 
 func NewUser(username string, email string, password string, nickname string) *User {

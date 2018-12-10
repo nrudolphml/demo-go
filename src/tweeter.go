@@ -4,17 +4,21 @@ import (
 	"github.com/abiosoft/ishell"
 	"github.com/nrudolph/twitter/src/domain"
 	"github.com/nrudolph/twitter/src/persistency"
+	"github.com/nrudolph/twitter/src/rest"
 	"github.com/nrudolph/twitter/src/service"
 	"strconv"
 )
 
 func main() {
+	tweetManager := service.NewTweetManager(persistency.NewFileTweetWritter())
+	userManager := service.NewUserManager()
+
+	restServer := rest.NewRestServer(tweetManager, userManager)
+	restServer.Start()
 
 	shell := ishell.New()
 	shell.SetPrompt("Tweeter >> ")
 	shell.Print("Type 'help' to know commands\n")
-	tweetManager := service.NewTweetManager(persistency.NewFileTweetWritter())
-	userManager := service.NewUserManager()
 
 	shell.AddCmd(&ishell.Cmd{
 		Name: "publishTweet",
@@ -359,7 +363,6 @@ func main() {
 	})
 
 	shell.Run()
-
 }
 
 func publishTextTweet(c *ishell.Context, userManager *service.UserManager, tweetManager *service.TweetManager) {

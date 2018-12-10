@@ -8,7 +8,7 @@ import (
 
 type QuoteTweet struct {
 	TextTweet
-	Quote Tweet
+	Quote Tweet `json:"quote"`
 }
 
 func NewQuoteTweet(u *user.User, text string, quote Tweet) *QuoteTweet {

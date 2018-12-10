@@ -7,10 +7,10 @@ import (
 )
 
 type TextTweet struct {
-	User *user.User
-	Text string
-	Date *time.Time
-	Id   int
+	User *user.User `json:"user"`
+	Text string     `json:"text"`
+	Date *time.Time `json:"date"`
+	Id   int        `json:"id"`
 }
 
 func (tweet *TextTweet) GetId() int {

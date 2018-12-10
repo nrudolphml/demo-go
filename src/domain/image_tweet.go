@@ -8,7 +8,7 @@ import (
 
 type ImageTweet struct {
 	TextTweet
-	Url string
+	Url string `json:"url"`
 }
 
 func NewImageTweet(user *user.User, text string, url string) *ImageTweet {
